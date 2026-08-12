@@ -1,0 +1,641 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Control de entrada</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap"
+rel="stylesheet">
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+
+margin:0;
+
+min-height:100vh;
+
+background:
+radial-gradient(
+circle at top,
+#fff9fa 0%,
+#fcecef 50%,
+#f6dce3 100%
+);
+
+font-family:
+'Montserrat',
+sans-serif;
+
+color:#5d424a;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+padding:20px;
+
+}
+
+.contenedor{
+
+width:100%;
+
+max-width:470px;
+
+}
+
+.tarjeta{
+
+background:
+rgba(255,255,255,.94);
+
+border:
+1px solid #d2aa62;
+
+border-radius:25px;
+
+padding:40px 30px;
+
+text-align:center;
+
+box-shadow:
+0 15px 45px
+rgba(128,72,89,.15);
+
+}
+
+.titulo{
+
+margin:0;
+
+font-family:
+'Cormorant Garamond',
+serif;
+
+font-size:43px;
+
+color:#a77b2f;
+
+}
+
+.subtitulo{
+
+margin-top:8px;
+
+font-size:13px;
+
+color:#80616a;
+
+}
+
+.linea{
+
+width:60px;
+
+height:1px;
+
+background:#c9a154;
+
+margin:25px auto;
+
+}
+
+.codigo-input{
+
+width:100%;
+
+text-align:center;
+
+text-transform:uppercase;
+
+letter-spacing:8px;
+
+font-size:30px;
+
+font-weight:600;
+
+padding:15px 10px;
+
+border:
+1px solid #e0bdc7;
+
+border-radius:13px;
+
+background:#fffafb;
+
+color:#8d6526;
+
+outline:none;
+
+}
+
+.codigo-input:focus{
+
+border-color:#c9a154;
+
+box-shadow:
+0 0 0 3px
+rgba(201,161,84,.12);
+
+}
+
+.boton{
+
+width:100%;
+
+margin-top:18px;
+
+padding:16px;
+
+border:0;
+
+border-radius:30px;
+
+background:
+linear-gradient(
+135deg,
+#c49a4d,
+#e0bd70,
+#b98536
+);
+
+color:white;
+
+font-weight:600;
+
+cursor:pointer;
+
+font-family:
+'Montserrat',
+sans-serif;
+
+}
+
+.boton:disabled{
+
+opacity:.6;
+
+cursor:wait;
+
+}
+
+.resultado{
+
+display:none;
+
+margin-top:25px;
+
+padding:22px;
+
+border-radius:18px;
+
+background:#fff7f9;
+
+border:
+1px solid #e2c4cb;
+
+}
+
+.resultado.visible{
+
+display:block;
+
+}
+
+.nombre{
+
+font-family:
+'Cormorant Garamond',
+serif;
+
+font-size:29px;
+
+line-height:1.2;
+
+color:#68464f;
+
+}
+
+.codigo-mostrar{
+
+margin-top:12px;
+
+font-size:22px;
+
+letter-spacing:5px;
+
+color:#9b702b;
+
+font-weight:600;
+
+}
+
+.exito{
+
+margin-top:18px;
+
+font-size:15px;
+
+color:#6f6651;
+
+}
+
+.ya{
+
+color:#a66c75;
+
+}
+
+.error{
+
+color:#a34e5b;
+
+margin-top:18px;
+
+font-size:14px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="contenedor">
+
+<div class="tarjeta">
+
+
+<h1 class="titulo">
+Entrada
+</h1>
+
+
+<div class="subtitulo">
+Control de acceso
+</div>
+
+
+<div class="linea"></div>
+
+
+<input
+id="codigo"
+class="codigo-input"
+type="text"
+maxlength="4"
+placeholder="XXXX"
+autocomplete="off"
+>
+
+
+<button
+id="boton"
+class="boton"
+onclick="registrar()"
+>
+Buscar pase
+</button>
+
+
+<div
+id="resultado"
+class="resultado">
+</div>
+
+
+</div>
+
+</div>
+
+
+<script>
+
+
+// ======================================================
+// MISMA URL DEL APPS SCRIPT
+// ======================================================
+
+const API_URL =
+'https://script.google.com/macros/s/AKfycbyhKAlP-qujK1wFTBLsXt5x4jvJ3IEp39z7tKjiKAmcYCUZVgSn0kCVj-H4uohPJ4hx/exec';
+
+
+// ======================================================
+// API
+// ======================================================
+
+function llamarAPI(parametros){
+
+return new Promise((resolve,reject)=>{
+
+const callback=
+'cb_'+
+Date.now()+
+'_'+
+Math.floor(Math.random()*9999);
+
+
+const script=
+document.createElement('script');
+
+
+const query=
+new URLSearchParams({
+
+...parametros,
+
+callback:
+callback
+
+});
+
+
+const tiempo=
+setTimeout(()=>{
+
+limpiar();
+
+reject();
+
+},15000);
+
+
+window[callback]=
+function(data){
+
+clearTimeout(tiempo);
+
+limpiar();
+
+resolve(data);
+
+};
+
+
+function limpiar(){
+
+delete window[callback];
+
+if(script.parentNode){
+
+script.parentNode
+.removeChild(script);
+
+}
+
+}
+
+
+script.onerror=
+function(){
+
+clearTimeout(tiempo);
+
+limpiar();
+
+reject();
+
+};
+
+
+script.src=
+API_URL+
+'?' +
+query.toString();
+
+
+document.body
+.appendChild(script);
+
+});
+
+}
+
+
+// ======================================================
+// REGISTRAR ENTRADA
+// ======================================================
+
+async function registrar(){
+
+const input=
+document.getElementById(
+'codigo'
+);
+
+
+const boton=
+document.getElementById(
+'boton'
+);
+
+
+const resultado=
+document.getElementById(
+'resultado'
+);
+
+
+const codigo=
+input.value
+.trim()
+.toUpperCase();
+
+
+if(codigo.length!==4){
+
+resultado.className=
+'resultado visible error';
+
+resultado.textContent=
+'Escribe un código válido de 4 caracteres.';
+
+return;
+
+}
+
+
+boton.disabled=true;
+
+boton.textContent=
+'Buscando...';
+
+
+try{
+
+const respuesta=
+await llamarAPI({
+
+accion:'entrada',
+
+codigo:codigo
+
+});
+
+
+if(!respuesta.ok){
+
+resultado.className=
+'resultado visible error';
+
+resultado.textContent=
+respuesta.mensaje;
+
+return;
+
+}
+
+
+const nombre=
+escapar(
+respuesta.nombre
+);
+
+
+const codigoMostrar=
+escapar(
+respuesta.codigo
+);
+
+
+// ====================================================
+// YA UTILIZADO
+// ====================================================
+
+if(respuesta.yaRegistrado){
+
+resultado.className=
+'resultado visible ya';
+
+resultado.innerHTML=`
+
+<div class="nombre">
+${nombre}
+</div>
+
+<div class="codigo-mostrar">
+${codigoMostrar}
+</div>
+
+<div class="exito">
+⚠ Este pase ya fue utilizado.
+</div>
+
+`;
+
+}
+
+
+// ====================================================
+// ENTRADA CORRECTA
+// ====================================================
+
+else{
+
+resultado.className=
+'resultado visible';
+
+resultado.innerHTML=`
+
+<div class="nombre">
+${nombre}
+</div>
+
+<div class="codigo-mostrar">
+${codigoMostrar}
+</div>
+
+<div class="exito">
+✓ Entrada registrada correctamente
+</div>
+
+`;
+
+}
+
+
+input.value='';
+
+
+}
+
+catch(error){
+
+resultado.className=
+'resultado visible error';
+
+resultado.textContent=
+'No se pudo conectar con el sistema.';
+
+}
+
+
+finally{
+
+boton.disabled=false;
+
+boton.textContent=
+'Buscar pase';
+
+}
+
+}
+
+
+// ======================================================
+// ESCAPAR HTML
+// ======================================================
+
+function escapar(texto){
+
+return String(texto || '')
+.replace(/&/g,'&amp;')
+.replace(/</g,'&lt;')
+.replace(/>/g,'&gt;')
+.replace(/"/g,'&quot;')
+.replace(/'/g,'&#039;');
+
+}
+
+
+// ======================================================
+// ENTER
+// ======================================================
+
+document
+.getElementById('codigo')
+.addEventListener(
+'keydown',
+function(e){
+
+if(e.key==='Enter'){
+
+registrar();
+
+}
+
+});
+
+</script>
+
+</body>
+
+</html>
+
